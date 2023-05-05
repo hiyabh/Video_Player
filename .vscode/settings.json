@@ -1,0 +1,4 @@
+{
+    "appService.deploySubpath": "",
+    "appService.defaultWebAppToDeploy": "/subscriptions/b42abe57-a547-49e4-8745-6c9f06600580/resourceGroups/appsvc_rg_windows_centralus/providers/Microsoft.Web/sites/AIvIA-Viewer"
+}
