@@ -22,6 +22,31 @@
 - Intuitive interface
 - Real-time adjustments
 
+## 🎮 Controls Guide
+
+### Playback Controls
+- **▶/∥** - Play/Pause
+- **❮** - Rewind
+- **❮❮** - Fast Rewind
+- **❯❯** - Fast Forward
+
+### Zoom Controls
+- **+** - Zoom In
+- **-** - Zoom Out
+
+### Movement Controls
+- **⇠** - Move Left
+- **⇢** - Move Right
+- **⇡** - Move Up
+- **⇣** - Move Down
+
+### Rotation Controls
+- **↻** - Rotate Left
+- **↺** - Rotate Right
+
+### Reset
+- **reset** - Reset to original position and size
+
 ## 🛠️ Technical Details
 Built using modern web technologies for optimal performance and user experience.
 
@@ -33,8 +58,10 @@ Built using modern web technologies for optimal performance and user experience.
 ## 🤝 Contributing
 Contributions are welcome! Feel free to submit issues and pull requests.
 
+## 📝 License
+[MIT](https://choosealicense.com/licenses/mit/)
 
 ---
 <div align="center">
-Made with ❤️ by [Hiya Ben Hemo](https://github.com/HiyaBH)
+Made with ❤️ by <a href="https://github.com/HiyaBH">Hiya Ben Hemo</a>
 </div>
