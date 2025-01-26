@@ -111,3 +111,69 @@ progress[value]::-webkit-progress-value {
 /* #change{position:absolute;right:-100px;top:-300px;width:100px;} */
 /* button{font-size:150%;text-align:center;display:block;} */
 /* #change button{width:60px;border:none;background:#fff;} */
+
+@media (max-width: 768px) {
+  .wrapper {
+    height: 28px;
+    margin: 3px;
+    padding: 1px;
+  }
+
+  .box {
+    padding: 0.5px;
+    height: 90%;
+  }
+
+  .button {
+    width: 90%;
+  }
+
+  progress {
+    font-size: 10px;
+    margin-right: 0.5%;
+  }
+}
+
+@media (max-width: 576px) {
+  .wrapper {
+    height: 24px;
+    margin: 2px;
+    padding: 1px;
+  }
+
+  .box {
+    padding: 0.5px;
+    height: 80%;
+  }
+
+  .button {
+    width: 80%;
+  }
+
+  progress {
+    font-size: 8px;
+    margin-right: 0.5%;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    height: 20px;
+    margin: 1px;
+    padding: 0.5px;
+  }
+
+  .box {
+    padding: 0.5px;
+    height: 70%;
+  }
+
+  .button {
+    width: 70%;
+  }
+
+  progress {
+    font-size: 6px;
+    margin-right: 0.5%;
+  }
+}
