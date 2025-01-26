@@ -7,13 +7,8 @@
     <title>Video Viewer</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWrnQq4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous">
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
@@ -24,9 +19,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
         crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
 
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <script src="https://unpkg.com/konva@3.2.6/konva.min.js"></script>
@@ -35,17 +27,134 @@
 
     <script src="https://unpkg.com/konva@3.2.7/konva.min.js"></script>
     <script type="text/javascript" src="script.js"></script>
-    <!-- <script type="text/javascript" src="script_canvas.js"></script> -->
     <script type="text/javascript" src="transformvideo.js"></script>
 
     <style>
+        .konvajs-content {
+            position: relative;
+        }
 
-.konvajs-content {
-    /* width: 200px;
-    height: 200px; */
-    position: relative;
-}
+        .navbar {
+            background-color: #333;
+        }
 
+        .navbar-brand img {
+            width: 6%;
+        }
+
+        .navbar-nav .nav-item .nav-link {
+            color: #fff;
+        }
+
+        .navbar-nav .nav-item .nav-link:hover {
+            color: #ddd;
+        }
+
+        .playr_wrapper {
+            background-color: #000;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .playr_video_container {
+            border: 1px solid #fff;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .playr_video {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .wrapper {
+            margin: 5px;
+            padding: 2px;
+        }
+
+        .box {
+            padding: 1px;
+        }
+
+        .button {
+            width: 100%;
+        }
+
+        progress {
+            color: #00BFFF;
+            font-size: 12px;
+            width: 100%;
+            border: none;
+            margin-right: 1%;
+            background: #434343;
+            border-radius: 9px;
+            vertical-align: middle;
+        }
+
+        progress::-moz-progress-bar {
+            color: #00BFFF;
+            background: #434343;
+        }
+
+        progress[value]::-webkit-progress-bar {
+            background-color: #ffffff;
+            border-radius: 2px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+        }
+
+        progress[value]::-webkit-progress-value {
+            background-color: #00BFFF;
+        }
+
+        .playr_video_curpos,
+        .playr_video_duration {
+            color: #fff;
+        }
+
+        .chooseFrame {
+            width: 50%;
+            height: 100%;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+
+        .choosebtn {
+            background-color: #00BFFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .choosebtn:hover {
+            background-color: #009ACD;
+        }
+
+        .control-buttons button {
+            background-color: #00BFFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin: 2px;
+        }
+
+        .control-buttons button:hover {
+            background-color: #009ACD;
+        }
+
+        .control-buttons button:active {
+            background-color: #007BB5;
+        }
+
+        .control-buttons span {
+            color: #fff;
+            margin-left: 10px;
+        }
     </style>
 </head>
 
@@ -53,10 +162,10 @@
     <div class="container-fluid">
 
         <!-- Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top" style="margin-left:5px">
+        <nav class="navbar navbar-expand-lg static-top">
 
-            <a class="navbar-brand" href="index.html" style="padding:2px">
-                <img class="responsive" src="images/final_logo_white_full.png" alt="" style="width: 6%; ">
+            <a class="navbar-brand" href="index.html">
+                <img class="responsive" src="images/final_logo_white_full.png" alt="">
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
                 aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,28 +187,6 @@
             <div class="row">
                 <div class="col-2" style="z-index: 2;  padding: 5px; height:82vh">
                     <div style="float:none">
-                        <!-- <div id='media-play-list' style="color: rgb(0, 47, 255);">
-                            <h4>Play list</h4>
-                            <ul id='Playlist'>
-                                <li>
-                                    <span class='play-item' id="video1" style="line-height: 2.8; cursor: pointer;"
-                                        onclick='loadVideo("video/videoplayback.MP4");'>videoplayback</span>
-                                </li>
-                                <li>
-                                    <span class='play-item' id="video1" style="line-height: 2.8; cursor: pointer;"
-                                        onclick='loadVideo("video/Computer Vision Annotation Tool.MP4");'>Computer
-                                        Vision Annotation Tool</span>
-                                </li>
-                                <li>
-                                    <span class='play-item' style="line-height: 2.8; cursor: pointer;"
-                                        onclick='loadVideo("video/DJI_0013-stable-new-reduce_fps.MP4");'>DJI_0013-stable-new-reduce_fps</span>
-                                </li>
-                                <li>
-                                    <span class='play-item' style="line-height: 2.8; cursor: pointer;"
-                                        onclick='loadVideo("video/DJI_0680-stable-new-reduce_fps-test3.mp4");'>DJI_0680-stable-new-reduce_fps-test3</span>
-                                </li>
-                            </ul>
-                        </div> -->
                     </div>
                 </div>
 
@@ -107,11 +194,7 @@
                     <div style="width:100%; margin:0">
                         <div class="playr_wrapper" id="playr_wrapper_0" tabindex="0">
                             <div class="playr_captions_wrapper" id="playr_captions_wrapper_0 my_video">
-                                <div class="playr_video_container" id="playr_video_container_0"
-                                    style="border:1px #ffffff; overflow:hidden">
-                                    <!-- <video class="playr_video" id="video">
-                                        <source src="video/videoplayback.mp4" type="video/mp4">
-                                    </video> -->
+                                <div class="playr_video_container" id="playr_video_container_0">
                                     <div class="playr_captions" id="playr_captions_0"></div>
                                 </div>
 
@@ -126,13 +209,14 @@
                                     </div>
                                     <div class="col-2 box">
                                         <input type="number" id="chooseFrame" name="chooseFrame" min="1"
-                                            style="width: 50%; height: 100%;">
-                                        <button class=" glyphicon glyphicon-share-alt" id="choosebtn" tabindex="0"
+                                            class="chooseFrame">
+                                        <button class="choosebtn" id="choosebtn" tabindex="0"
                                             onclick="choose();">
+                                            &#10173;
                                         </button>
                                     </div>
                                 </div>
-                                <div id="change">
+                                <div id="change" class="control-buttons">
                                     <button class="revSpeed" id="revSpeed"
                                         onclick="revSpeed(3.0)">&#10094;&#10094;</button>
                                     <button class="rev" id="rev" onclick="rev(1.0)">&#10094;</button>
@@ -154,13 +238,10 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- <div id="container"></div> -->
                     </div>
 
                     <div class="col-2" style=" padding: 5px; height:82vh">
                         <div style="float:none">
-
-                            <!-- <canvas style="border: 1px solid black; width: 100%;"></canvas> -->
                             <div id="stage" style="background-color: white">
                             </div>
                             <div id="controls"></div>
@@ -178,21 +259,6 @@
         </footer>
         <!-- Footer -->
     </div>
-
-
-
-
-
-
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
 
     <script>
         // window.addEventListener('load', function () {
