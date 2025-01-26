@@ -58,7 +58,6 @@ window.addEventListener("load", function() {
         for (;;) {
           let pos = document.defaultView.getComputedStyle(relativeParent)
             .position;
-          console.log("pos: ", pos);
 
           if (pos === "static" && relativeParent.parentNode)
             relativeParent = relativeParent.parentNode;
@@ -72,10 +71,6 @@ window.addEventListener("load", function() {
         let isRelativeParentFlexItem = !!document.defaultView.getComputedStyle(
           relativeParent.parentNode
         ).flex;
-
-        // console.log('v.getBoundingClientRect().left: ', v.getBoundingClientRect().left, 'v.getBoundingClientRect().top: ', v.getBoundingClientRect().top);
-        // console.log('shiftX: ', shiftX, 'shiftY: ', shiftY);
-        // console.log('v.style.left: ', parseInt(v.style.left), 'v.style.top: ', parseInt(v.style.top));
 
         function moveAt(movementX, movementY, clientX, clientY) {
           // Extra special offsets
@@ -100,7 +95,6 @@ window.addEventListener("load", function() {
           v.style.marginLeft = "initial";
           v.style.marginRight = "initial";
 
-          //console.log('moveAt - v.style.left: ', v.style.left, 'v.style.top: ', v.style.top);
         }
         function onMouseMove(event) {
           moveAt(
@@ -307,33 +301,6 @@ window.addEventListener("load", function() {
       let width = v.offsetWidth;
       let height = v.offsetHeight;
 
-      // let oldScale = zoom;
-      // let mousePointTo = {
-      //   x: event.clientX - parseInt(v.style.top) / oldScale,
-      //   y: event.clientY - parseInt(v.style.top) / oldScale
-      // };
-
-      console.log(
-        "relative to the current window: event.clientX: ",
-        event.clientX,
-        " event.clientY: ",
-        event.clientY
-      );
-      console.log(
-        "position of video: v.style.top: ",
-        parseInt(v.style.top),
-        " v.style.left: ",
-        parseInt(v.style.left)
-      );
-      console.log(
-        "relative to the target element: event.offsetX: ",
-        event.offsetX,
-        " event.offsetY: ",
-        event.offsetY
-      );
-      // console.log('relative to the document: event.pageX: ', event.pageX, ' event.pageY: ', event.pageY);
-      // console.log('mousePointTo[x]: ', mousePointTo.x, ' mousePointTo[y]: ', mousePointTo.y);
-
       if (delta === 1) {
         zoom = zoom + 0.5;
 
@@ -365,24 +332,7 @@ window.addEventListener("load", function() {
       }
 
       v.style[prop] = "scale(" + zoom + ") rotate(" + rotate + "deg)";
-      console.log("zoom: ", zoom);
 
-      console.log("width: ", width);
-      console.log("height: ", height);
-
-      //let newScale = zoom;
-      // var newPos = {
-      //   x:
-      //     -(mousePointTo.x - event.clientX / newScale) *
-      //     newScale,
-      //   y:
-      //     -(mousePointTo.y - event.clientY / newScale) *
-      //     newScale
-      // };
-
-      // console.log('newPos: ', newPos);
-      // v.style.top = newPos.y + 'px';
-      // v.style.left = newPos.x + 'px';
     }
   })();
 });
