@@ -31,15 +31,8 @@ Built using modern web technologies for optimal performance and user experience.
 2. Access controls through the intuitive interface
 3. Customize playback to your preferences
 
-## Live Demo
-
-[Try Video Player](#) - Experience the features firsthand
-
 ## Contributing
 
 Contributions are welcome! Feel free to submit issues and pull requests.
 
-## License
-
-This project is licensed under the MIT License.
 ```
