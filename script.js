@@ -55,19 +55,35 @@ class VideoPlayer {
         this.playPauseBtn?.addEventListener('click', () => this.togglePlay());
         this.playOverlay?.addEventListener('click', () => this.togglePlay());
 
-        // Video click - but not when dragging
-        this.videoClickTimeout = null;
-        this.videoWasDragged = false;
-        this.video?.addEventListener('mousedown', () => {
-            this.videoWasDragged = false;
+        // Video click to toggle play - but not when dragging or using transform buttons
+        this.videoIsDragging = false;
+        this.videoMouseDown = false;
+
+        this.video?.addEventListener('mousedown', (e) => {
+            // Only track if it's a direct click on the video, not from transform controls
+            if (e.target === this.video) {
+                this.videoMouseDown = true;
+                this.videoIsDragging = false;
+            }
         });
-        this.video?.addEventListener('mousemove', () => {
-            this.videoWasDragged = true;
+
+        this.video?.addEventListener('mousemove', (e) => {
+            // Only mark as dragging if mouse is down
+            if (this.videoMouseDown) {
+                this.videoIsDragging = true;
+            }
         });
-        this.video?.addEventListener('click', () => {
-            if (!this.videoWasDragged) {
+
+        this.video?.addEventListener('mouseup', () => {
+            this.videoMouseDown = false;
+        });
+
+        this.video?.addEventListener('click', (e) => {
+            // Only toggle play if we're not dragging and it's a direct click
+            if (!this.videoIsDragging && e.target === this.video) {
                 this.togglePlay();
             }
+            this.videoIsDragging = false;
         });
 
         // Rewind/Forward controls
