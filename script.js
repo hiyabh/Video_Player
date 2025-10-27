@@ -54,7 +54,21 @@ class VideoPlayer {
         // Play/Pause controls
         this.playPauseBtn?.addEventListener('click', () => this.togglePlay());
         this.playOverlay?.addEventListener('click', () => this.togglePlay());
-        this.video?.addEventListener('click', () => this.togglePlay());
+
+        // Video click - but not when dragging
+        this.videoClickTimeout = null;
+        this.videoWasDragged = false;
+        this.video?.addEventListener('mousedown', () => {
+            this.videoWasDragged = false;
+        });
+        this.video?.addEventListener('mousemove', () => {
+            this.videoWasDragged = true;
+        });
+        this.video?.addEventListener('click', () => {
+            if (!this.videoWasDragged) {
+                this.togglePlay();
+            }
+        });
 
         // Rewind/Forward controls
         this.rewindBtn?.addEventListener('mousedown', () => this.startRewind(1.0));
@@ -92,8 +106,56 @@ class VideoPlayer {
         // Theme toggle
         this.themeToggle?.addEventListener('click', () => this.toggleTheme());
 
+        // Shortcuts modal
+        this.setupShortcutsModal();
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+    }
+
+    // Shortcuts Modal
+    setupShortcutsModal() {
+        const helpBtn = document.getElementById('helpBtn');
+        const modal = document.getElementById('shortcutsModal');
+        const closeBtn = document.getElementById('closeModal');
+
+        if (!helpBtn || !modal || !closeBtn) return;
+
+        // Open modal
+        helpBtn.addEventListener('click', () => {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Close modal
+        const closeModal = () => {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Also add ? key to open help
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '?' && !modal.classList.contains('active') && e.target.tagName !== 'INPUT') {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        });
     }
 
     // Playback Controls

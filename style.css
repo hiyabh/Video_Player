@@ -914,3 +914,228 @@ button, a, input {
         display: none;
     }
 }
+
+/* Help Button */
+.help-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.help-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.help-btn:active {
+    transform: translateY(0);
+}
+
+.help-btn svg {
+    flex-shrink: 0;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.9) translateY(20px);
+    transition: all var(--transition-normal);
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.modal-close {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+}
+
+.modal-close:hover {
+    background: var(--glass-bg);
+    color: var(--accent-primary);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+/* Shortcuts Grid */
+.shortcuts-grid {
+    display: grid;
+    gap: var(--spacing-xl);
+}
+
+.shortcut-category h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.shortcut-category h3::before {
+    content: '';
+    width: 4px;
+    height: 1.125rem;
+    background: var(--accent-gradient);
+    border-radius: 2px;
+}
+
+.shortcut-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0;
+    color: var(--text-secondary);
+}
+
+.shortcut-item kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 32px;
+    padding: 0 var(--spacing-sm);
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.shortcut-desc {
+    flex: 1;
+    color: var(--text-secondary);
+}
+
+.tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tips-list li {
+    padding: var(--spacing-sm) 0;
+    padding-right: var(--spacing-lg);
+    position: relative;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.tips-list li::before {
+    content: '•';
+    position: absolute;
+    right: 0;
+    color: var(--accent-primary);
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .modal-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .shortcuts-grid {
+        gap: var(--spacing-lg);
+    }
+
+    .shortcut-item {
+        flex-wrap: wrap;
+    }
+
+    .help-btn span {
+        display: none;
+    }
+
+    .help-btn {
+        width: 40px;
+        height: 40px;
+        padding: var(--spacing-sm);
+        justify-content: center;
+    }
+}

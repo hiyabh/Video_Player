@@ -40,6 +40,14 @@
                     <h1>נגן וידאו מתקדם</h1>
                 </div>
                 <nav class="header-nav">
+                    <button class="help-btn" id="helpBtn" title="קיצורי דרך">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        עזרה
+                    </button>
                     <a href="#" class="nav-link active">נגן</a>
                     <a href="login.html" class="nav-link">התחברות</a>
                 </nav>
@@ -335,6 +343,76 @@
                 </div>
             </aside>
         </main>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal-overlay" id="shortcutsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>קיצורי דרך</h2>
+                <button class="modal-close" id="closeModal" aria-label="סגור">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcuts-grid">
+                    <div class="shortcut-category">
+                        <h3>בקרת הפעלה</h3>
+                        <div class="shortcut-item">
+                            <kbd>Space</kbd>
+                            <span>או</span>
+                            <kbd>K</kbd>
+                            <span class="shortcut-desc">נגן / עצור</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>→</kbd>
+                            <span class="shortcut-desc">קדימה 5 שניות</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>←</kbd>
+                            <span class="shortcut-desc">אחורה 5 שניות</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>J</kbd>
+                            <span class="shortcut-desc">אחורה 10 שניות</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>L</kbd>
+                            <span class="shortcut-desc">קדימה 10 שניות</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>0</kbd>
+                            <span class="shortcut-desc">חזרה להתחלה</span>
+                        </div>
+                    </div>
+
+                    <div class="shortcut-category">
+                        <h3>תצוגה</h3>
+                        <div class="shortcut-item">
+                            <kbd>F</kbd>
+                            <span class="shortcut-desc">מסך מלא</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>M</kbd>
+                            <span class="shortcut-desc">השתק / בטל השתקה</span>
+                        </div>
+                    </div>
+
+                    <div class="shortcut-category">
+                        <h3>טיפים</h3>
+                        <ul class="tips-list">
+                            <li>גלגל עכבר על הוידאו = זום</li>
+                            <li>גרור את הוידאו עם העכבר להזזה</li>
+                            <li>החזק כפתור למשוך ברציפות</li>
+                            <li>לחץ על הוידאו להפעלה/עצירה</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
