@@ -165,20 +165,20 @@ class VideoTransform {
 
     // Rotation Controls
     rotateLeft() {
-        this.rotation += this.ROTATION_STEP;
+        this.rotation -= this.ROTATION_STEP;  // Left = counter-clockwise = minus
         // Keep rotation in 0-360 range
-        if (this.rotation >= 360) {
-            this.rotation -= 360;
+        if (this.rotation < 0) {
+            this.rotation += 360;
         }
         this.applyTransform();
         this.updateDisplays();
     }
 
     rotateRight() {
-        this.rotation -= this.ROTATION_STEP;
+        this.rotation += this.ROTATION_STEP;  // Right = clockwise = plus
         // Keep rotation in 0-360 range
-        if (this.rotation < 0) {
-            this.rotation += 360;
+        if (this.rotation >= 360) {
+            this.rotation -= 360;
         }
         this.applyTransform();
         this.updateDisplays();

@@ -204,6 +204,7 @@ body {
 
 .header-nav {
     display: flex;
+    align-items: center;
     gap: var(--spacing-md);
 }
 
@@ -917,7 +918,7 @@ button, a, input {
 
 /* Help Button */
 .help-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: var(--spacing-sm);
     padding: var(--spacing-sm) var(--spacing-lg);
@@ -929,6 +930,8 @@ button, a, input {
     font-weight: 500;
     cursor: pointer;
     transition: all var(--transition-normal);
+    font-family: inherit;
+    white-space: nowrap;
 }
 
 .help-btn:hover {

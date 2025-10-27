@@ -185,18 +185,26 @@ class VideoPlayer {
         if (!this.video) return;
 
         this.stopRewind();
+
+        const wasPlaying = !this.video.paused;
         this.video.playbackRate = speed;
-        if (this.video.paused) {
-            this.video.play();
+
+        if (wasPlaying) {
+            // Keep playing at the new speed
+            this.video.play().catch(err => console.log('Play error:', err));
+            this.updatePlayButton(true);
+        } else {
+            // Start playing at the new speed
+            this.video.play().catch(err => console.log('Play error:', err));
             this.updatePlayButton(true);
         }
 
-        // Reset to normal speed after a moment
+        // Reset to normal speed after playing for a bit
         setTimeout(() => {
-            if (this.video.playbackRate === speed) {
+            if (this.video && this.video.playbackRate === speed) {
                 this.video.playbackRate = 1;
             }
-        }, 100);
+        }, 1000);  // Give it 1 second at the fast speed
     }
 
     startRewind(speed) {
