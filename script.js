@@ -1,214 +1,419 @@
-let playbtn, seekslider, correntFrame, durationFrame, corrent, duration, progressBar, chooseTarget, input, intervalRewind;
+/**
+ * Modern Video Player 2025
+ * ES6+ Video Player Controller
+ */
 
+class VideoPlayer {
+    constructor() {
+        // Video elements
+        this.video = document.getElementById('videoPlayer');
+        this.playPauseBtn = document.getElementById('playPause');
+        this.playOverlay = document.getElementById('playOverlay');
+        this.rewindBtn = document.getElementById('rewind');
+        this.rewindFastBtn = document.getElementById('rewindFast');
+        this.forwardBtn = document.getElementById('forward');
+        this.forwardFastBtn = document.getElementById('forwardFast');
 
-document.addEventListener("DOMContentLoaded", function () { initialiseVideo(); }, false);
+        // Progress elements
+        this.progressBar = document.getElementById('progressBar');
+        this.progressFilled = document.getElementById('progressFilled');
+        this.progressHandle = document.getElementById('progressHandle');
+        this.currentTimeDisplay = document.getElementById('currentTime');
+        this.totalTimeDisplay = document.getElementById('totalTime');
 
-function initialiseVideo() {
-    vid = document.getElementById('playr_video_0');
-    vid.controls = false;
+        // Frame controls
+        this.frameInput = document.getElementById('frameInput');
+        this.frameGoBtn = document.getElementById('frameGo');
 
-    playbtn = document.getElementById("playpausebtn");
-    choosebtn = document.getElementById("choosebtn");
-    playrev = document.getElementById("rev");
-    playrevSpeed = document.getElementById("revSpeed");
-    speedbtn = document.getElementById("speedbtn");
+        // Upload elements
+        this.videoUpload = document.getElementById('videoUpload');
+        this.uploadArea = document.getElementById('uploadArea');
+        this.fileInfo = document.getElementById('fileInfo');
+        this.fileName = document.getElementById('fileName');
+        this.fileSize = document.getElementById('fileSize');
 
-    corrent = document.getElementById("playr_video_curpos_0");
-    duration = document.getElementById("playr_video_duration_0");
-    progressBar = document.getElementById('progress-bar');
-    input = document.getElementById("chooseFrame");
+        // Theme toggle
+        this.themeToggle = document.getElementById('themeToggle');
 
-    progressBar.addEventListener("change", vidSeek, false);
-    progressBar.addEventListener("click", seek, false);
-    vid.addEventListener("timeupdate", seektimeupdate, false);
-    input.addEventListener("keyup", shoot, false);
+        // State
+        this.frameRate = 30; // Default frame rate
+        this.rewindInterval = null;
+        this.forwardInterval = null;
+        this.isDraggingProgress = false;
 
-}
-
-//button speed
-
-function setPlaySpeed() {
-    if (vid.playbackRate === 1) {
-        speedbtn.innerHTML = '&#8741;';
-        vid.play();
-        vid.playbackRate = 5;
+        this.init();
     }
-    else {
-        speedbtn.innerHTML = '&#10095;&#10095;';
-        vid.playbackRate = 1;
+
+    init() {
+        this.setupEventListeners();
+        this.setupTheme();
+        this.updateTimeDisplays();
     }
-}
 
+    setupEventListeners() {
+        // Play/Pause controls
+        this.playPauseBtn?.addEventListener('click', () => this.togglePlay());
+        this.playOverlay?.addEventListener('click', () => this.togglePlay());
+        this.video?.addEventListener('click', () => this.togglePlay());
 
-//button play
-function playPause() {
-    if (vid.paused) {
-        clearInterval(intervalRewind);
-        vid.playbackRate = 1;
-        vid.play();
-        playbtn.innerHTML = "&#8741;";
-        speedbtn.innerHTML = '&#10095;&#10095;';
-        playrev.innerHTML = '&#10094;';
-        playrevSpeed.innerHTML = '&#10094;&#10094;';
+        // Rewind/Forward controls
+        this.rewindBtn?.addEventListener('mousedown', () => this.startRewind(1.0));
+        this.rewindBtn?.addEventListener('mouseup', () => this.stopRewind());
+        this.rewindBtn?.addEventListener('mouseleave', () => this.stopRewind());
+
+        this.rewindFastBtn?.addEventListener('mousedown', () => this.startRewind(3.0));
+        this.rewindFastBtn?.addEventListener('mouseup', () => this.stopRewind());
+        this.rewindFastBtn?.addEventListener('mouseleave', () => this.stopRewind());
+
+        this.forwardBtn?.addEventListener('click', () => this.setPlaySpeed(5));
+        this.forwardFastBtn?.addEventListener('click', () => this.setPlaySpeed(10));
+
+        // Progress bar
+        this.progressBar?.addEventListener('click', (e) => this.seekToPosition(e));
+        this.progressHandle?.addEventListener('mousedown', (e) => this.startDragging(e));
+        document.addEventListener('mousemove', (e) => this.handleDragging(e));
+        document.addEventListener('mouseup', () => this.stopDragging());
+
+        // Video events
+        this.video?.addEventListener('timeupdate', () => this.updateProgress());
+        this.video?.addEventListener('loadedmetadata', () => this.updateTimeDisplays());
+        this.video?.addEventListener('ended', () => this.onVideoEnded());
+
+        // Frame controls
+        this.frameGoBtn?.addEventListener('click', () => this.goToFrame());
+        this.frameInput?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.goToFrame();
+        });
+
+        // File upload
+        this.videoUpload?.addEventListener('change', (e) => this.handleFileUpload(e));
+        this.setupDragAndDrop();
+
+        // Theme toggle
+        this.themeToggle?.addEventListener('click', () => this.toggleTheme());
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboard(e));
     }
-    else {
-        if (vid.playbackRate != 1) {
-            vid.playbackRate = 1;
-            clearInterval(intervalRewind);
-            vid.play();
-            playbtn.innerHTML = "&#8741;";
-            speedbtn.innerHTML = '&#10095;&#10095;';
-            playrev.innerHTML = '&#10094;';
-            playrevSpeed.innerHTML = '&#10094;&#10094;';
-        }
-        else {
-            vid.playbackRate = 1;
-            clearInterval(intervalRewind);
-            vid.pause();
-            playbtn.innerHTML = "&#9654;";
-            speedbtn.innerHTML = '&#10095;&#10095;';
-            playrev.innerHTML = '&#10094;';
-            playrevSpeed.innerHTML = '&#10094;&#10094;';
-        }
-    }
-}
 
-function changeButtonType(playbtn, value) {
-    playbtn.title = value;
-    playbtn.innerHTML = value;
-    playbtn.className = value;
-}
+    // Playback Controls
+    togglePlay() {
+        if (!this.video) return;
 
-
-//button rev
-function rev(rewindSpeed) {
-    clearInterval(intervalRewind);
-    var startSystemTime = new Date().getTime();
-    var startVideoTime = vid.currentTime;
-    intervalRewind = setInterval(function () {
-        vid.playbackRate = 1.0;
-        if (vid.currentTime == 0) {
-            clearInterval(intervalRewind);
-            vid.pause();
-            playrev.innerHTML = '&#10094;';
-            speedbtn.innerHTML = '&#10095;&#10095;';
+        if (this.video.paused) {
+            this.video.play();
+            this.updatePlayButton(true);
         } else {
-            var elapsed = new Date().getTime() - startSystemTime;
-            vid.pause();
-            vid.currentTime = startVideoTime - elapsed * rewindSpeed / 2000.0;
-            playrev.innerHTML = '&#8741;';
-            playbtn.innerHTML = '&#9654;';
-            playrevSpeed.innerHTML = '&#10094;&#10094;';
-            speedbtn.innerHTML = '&#10095;&#10095;';
-
+            this.video.pause();
+            this.updatePlayButton(false);
         }
-    }, 333);
-}
+    }
 
-//button revSpeed
-function revSpeed(rewindSpeed) {
-    clearInterval(intervalRewind);
-    var startSystemTime = new Date().getTime();
-    var startVideoTime = vid.currentTime;
-    intervalRewind = setInterval(function () {
-        vid.playbackRate = 1.0;
-        if (vid.currentTime == 0) {
-            clearInterval(intervalRewind);
-            vid.pause();
-            playrevSpeed.innerHTML = '&#10094;&#10094;';
-            speedbtn.innerHTML = '&#10095;&#10095;';
+    updatePlayButton(isPlaying) {
+        const playIcon = this.playPauseBtn?.querySelector('.play-icon');
+        const pauseIcon = this.playPauseBtn?.querySelector('.pause-icon');
+
+        if (playIcon && pauseIcon) {
+            playIcon.style.display = isPlaying ? 'none' : 'block';
+            pauseIcon.style.display = isPlaying ? 'block' : 'none';
+        }
+    }
+
+    setPlaySpeed(speed) {
+        if (!this.video) return;
+
+        this.stopRewind();
+        this.video.playbackRate = speed;
+        if (this.video.paused) {
+            this.video.play();
+            this.updatePlayButton(true);
+        }
+
+        // Reset to normal speed after a moment
+        setTimeout(() => {
+            if (this.video.playbackRate === speed) {
+                this.video.playbackRate = 1;
+            }
+        }, 100);
+    }
+
+    startRewind(speed) {
+        if (!this.video) return;
+
+        this.stopRewind();
+        const startTime = this.video.currentTime;
+        const startSystemTime = Date.now();
+
+        this.rewindInterval = setInterval(() => {
+            if (this.video.currentTime <= 0) {
+                this.stopRewind();
+                this.video.pause();
+                this.updatePlayButton(false);
+            } else {
+                const elapsed = (Date.now() - startSystemTime) / 1000;
+                this.video.currentTime = Math.max(0, startTime - elapsed * speed);
+            }
+        }, 33); // ~30fps
+    }
+
+    stopRewind() {
+        if (this.rewindInterval) {
+            clearInterval(this.rewindInterval);
+            this.rewindInterval = null;
+        }
+    }
+
+    onVideoEnded() {
+        this.updatePlayButton(false);
+        if (this.video) {
+            this.video.currentTime = 0;
+        }
+    }
+
+    // Progress Bar Controls
+    updateProgress() {
+        if (!this.video || this.isDraggingProgress) return;
+
+        const percent = (this.video.currentTime / this.video.duration) * 100 || 0;
+
+        if (this.progressFilled) {
+            this.progressFilled.style.width = `${percent}%`;
+        }
+
+        if (this.progressHandle) {
+            this.progressHandle.style.left = `${percent}%`;
+        }
+
+        // Update time displays
+        const currentFrame = Math.floor(this.video.currentTime * this.frameRate);
+        if (this.currentTimeDisplay) {
+            this.currentTimeDisplay.textContent = currentFrame;
+        }
+    }
+
+    seekToPosition(e) {
+        if (!this.video || !this.progressBar) return;
+
+        const rect = this.progressBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        this.video.currentTime = percent * this.video.duration;
+        this.updateProgress();
+    }
+
+    startDragging(e) {
+        e.preventDefault();
+        this.isDraggingProgress = true;
+    }
+
+    handleDragging(e) {
+        if (!this.isDraggingProgress || !this.progressBar) return;
+
+        const rect = this.progressBar.getBoundingClientRect();
+        let percent = (e.clientX - rect.left) / rect.width;
+        percent = Math.max(0, Math.min(1, percent));
+
+        if (this.video) {
+            this.video.currentTime = percent * this.video.duration;
+        }
+
+        if (this.progressFilled) {
+            this.progressFilled.style.width = `${percent * 100}%`;
+        }
+
+        if (this.progressHandle) {
+            this.progressHandle.style.left = `${percent * 100}%`;
+        }
+    }
+
+    stopDragging() {
+        this.isDraggingProgress = false;
+    }
+
+    updateTimeDisplays() {
+        if (!this.video) return;
+
+        const totalFrames = Math.floor(this.video.duration * this.frameRate);
+        if (this.totalTimeDisplay && !isNaN(totalFrames)) {
+            this.totalTimeDisplay.textContent = totalFrames;
+        }
+    }
+
+    // Frame Controls
+    goToFrame() {
+        if (!this.video || !this.frameInput) return;
+
+        const frameNumber = parseInt(this.frameInput.value);
+        if (isNaN(frameNumber) || frameNumber < 0) return;
+
+        const timeInSeconds = frameNumber / this.frameRate;
+        this.video.currentTime = Math.min(timeInSeconds, this.video.duration);
+        this.updateProgress();
+    }
+
+    // File Upload
+    handleFileUpload(e) {
+        const files = e.target.files;
+        if (files.length === 0) return;
+
+        const file = files[0];
+        if (!this.isValidVideoFile(file)) {
+            alert('נא להעלות קובץ וידאו תקין (MP4, WebM, OGG)');
+            return;
+        }
+
+        this.loadVideoFile(file);
+    }
+
+    isValidVideoFile(file) {
+        const validTypes = ['video/mp4', 'video/webm', 'video/ogg'];
+        return validTypes.includes(file.type);
+    }
+
+    loadVideoFile(file) {
+        if (!this.video) return;
+
+        const url = URL.createObjectURL(file);
+        this.video.src = url;
+        this.video.load();
+
+        // Show file info
+        if (this.fileName) {
+            this.fileName.textContent = file.name;
+        }
+
+        if (this.fileSize) {
+            this.fileSize.textContent = this.formatFileSize(file.size);
+        }
+
+        if (this.fileInfo) {
+            this.fileInfo.style.display = 'block';
+        }
+
+        // Clean up old URL when video changes
+        this.video.addEventListener('loadstart', () => {
+            URL.revokeObjectURL(url);
+        }, { once: true });
+    }
+
+    formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    setupDragAndDrop() {
+        if (!this.uploadArea) return;
+
+        const preventDefaults = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            this.uploadArea.addEventListener(eventName, preventDefaults);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            this.uploadArea.addEventListener(eventName, () => {
+                this.uploadArea.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            this.uploadArea.addEventListener(eventName, () => {
+                this.uploadArea.classList.remove('drag-over');
+            });
+        });
+
+        this.uploadArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && this.isValidVideoFile(files[0])) {
+                this.loadVideoFile(files[0]);
+            }
+        });
+    }
+
+    // Theme Controls
+    setupTheme() {
+        // Check for saved theme preference or default to light mode
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
+    toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+
+        // Add smooth transition effect
+        document.body.style.transition = 'background 0.3s ease-in-out';
+    }
+
+    // Keyboard Shortcuts
+    handleKeyboard(e) {
+        // Don't trigger shortcuts when typing in input fields
+        if (e.target.tagName === 'INPUT') return;
+
+        switch(e.key) {
+            case ' ':
+            case 'k':
+                e.preventDefault();
+                this.togglePlay();
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                if (this.video) this.video.currentTime -= 5;
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                if (this.video) this.video.currentTime += 5;
+                break;
+            case 'j':
+                e.preventDefault();
+                if (this.video) this.video.currentTime -= 10;
+                break;
+            case 'l':
+                e.preventDefault();
+                if (this.video) this.video.currentTime += 10;
+                break;
+            case 'm':
+                e.preventDefault();
+                if (this.video) this.video.muted = !this.video.muted;
+                break;
+            case 'f':
+                e.preventDefault();
+                this.toggleFullscreen();
+                break;
+            case '0':
+                e.preventDefault();
+                if (this.video) this.video.currentTime = 0;
+                break;
+        }
+    }
+
+    toggleFullscreen() {
+        if (!this.video) return;
+
+        if (!document.fullscreenElement) {
+            this.video.requestFullscreen().catch(err => {
+                console.log(`Error attempting to enable fullscreen: ${err.message}`);
+            });
         } else {
-            var elapsed = new Date().getTime() - startSystemTime;
-            vid.pause();
-            vid.currentTime = startVideoTime - elapsed * rewindSpeed / 2000.0;
-            playrevSpeed.innerHTML = '&#8741;';
-            playbtn.innerHTML = '&#9654;';
-            playrev.innerHTML = '&#10094;';
-            speedbtn.innerHTML = '&#10095;&#10095;';
+            document.exitFullscreen();
         }
-    }, 333);
-}
-
-
-
-
-//progres bar
-
-function seek(e) {
-    var percent = e.offsetX / this.offsetWidth;
-    vid.currentTime = percent * vid.duration;
-    e.target.value = Math.floor(percent / 100);
-    e.target.innerHTML = progressBar.value + '% played';
-}
-
-function updateProgressBar() {
-    var percentage = Math.floor((100 / vid.duration) * vid.currentTime);
-    progressBar.value = percentage;
-    progressBar.innerHTML = percentage + '% played';
-}
-
-
-//progress bar pointer
-function vidSeek() {
-    var seekto = (vid.duration * 30) * (progressBar.value / 100);
-    vid.currentTime = seekto;
-}
-function seektimeupdate() {
-    var nt = vid.currentTime * (100 / vid.duration);
-    progressBar.value = nt;
-}
-
-
-
-
-
-
-// current frame
-function myFunction() {
-    document.getElementById("playr_video_curpos_0").innerHTML = Math.floor(vid.currentTime * 30);
-    //document.getElementById("Frame").innerHTML = Math.floor(vid.currentTime * 30);
-
-}
-//duration frame
-function isLoaded() {
-    document.getElementById("playr_video_duration_0").innerHTML = Math.floor(vid.duration * 30);
-}
-
-//choose frame
-function choose() {
-    chooseTarget = document.getElementById("chooseFrame").value;
-    vid.currentTime = (Math.floor(chooseTarget) / 30) + 1 / 30;
-}
-
-
-
-function shoot(event) {
-    if (event.keyCode === 13) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        document.getElementById("choosebtn").click();
     }
 }
 
-
-//playlist
-//צריך להוסיף איפוס כשהכפתורים נטענים וכן לסדר את הסרגל בהתאם שיתאפס
-function loadVideo() {
-    for (var i = 0; i < arguments.length; i++) {
-        var file = arguments[i].split('.');
-        var ext = file[file.length - 1];
-
-        vid.src = arguments[i];
-        vid.load();
-        break;
-
-    }
+// Initialize the video player when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.videoPlayer = new VideoPlayer();
+    });
+} else {
+    window.videoPlayer = new VideoPlayer();
 }
 
-
-
-
-
-
-
+// Export for use in other modules
+export default VideoPlayer;
