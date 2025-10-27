@@ -64,19 +64,19 @@ class VideoTransform {
     }
 
     setupEventListeners() {
-        // Zoom controls
+        // Zoom controls - continuous for smooth zooming
         this.setupContinuousButton(this.zoomInBtn, () => this.zoomIn());
         this.setupContinuousButton(this.zoomOutBtn, () => this.zoomOut());
 
-        // Position controls
+        // Position controls - continuous for smooth movement
         this.setupContinuousButton(this.moveUpBtn, () => this.moveUp());
         this.setupContinuousButton(this.moveDownBtn, () => this.moveDown());
         this.setupContinuousButton(this.moveLeftBtn, () => this.moveLeft());
         this.setupContinuousButton(this.moveRightBtn, () => this.moveRight());
 
-        // Rotation controls
-        this.setupContinuousButton(this.rotateLeftBtn, () => this.rotateLeft());
-        this.setupContinuousButton(this.rotateRightBtn, () => this.rotateRight());
+        // Rotation controls - single click for precise 5-degree rotation
+        this.rotateLeftBtn?.addEventListener('click', () => this.rotateLeft());
+        this.rotateRightBtn?.addEventListener('click', () => this.rotateRight());
 
         // Reset controls
         this.resetPositionBtn?.addEventListener('click', () => this.resetPosition());
@@ -204,6 +204,7 @@ class VideoTransform {
     // Drag to Move
     startDrag(e) {
         e.preventDefault();
+        e.stopPropagation(); // Prevent video player from receiving this event
         this.isDragging = true;
         this.dragStartX = e.clientX;
         this.dragStartY = e.clientY;
@@ -212,6 +213,11 @@ class VideoTransform {
 
         if (this.video) {
             this.video.style.cursor = 'grabbing';
+        }
+
+        // Notify video player that we're dragging
+        if (window.videoPlayer) {
+            window.videoPlayer.videoIsDragging = true;
         }
     }
 
@@ -234,6 +240,13 @@ class VideoTransform {
         this.isDragging = false;
         if (this.video) {
             this.video.style.cursor = 'grab';
+        }
+
+        // Notify video player that we're done dragging
+        if (window.videoPlayer) {
+            setTimeout(() => {
+                window.videoPlayer.videoIsDragging = false;
+            }, 50); // Small delay to prevent click event
         }
     }
 
