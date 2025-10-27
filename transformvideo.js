@@ -1,388 +1,330 @@
-window.addEventListener("load", function() {
-  (function() {
-    /* predefine zoom and rotate */
-    let zoom = 1;
-    let rotate = 0;
+/**
+ * Modern Video Transform Controller 2025
+ * Handles video zoom, rotation, and position transformations
+ */
 
-    /* Grab the necessary DOM elements */
-    //var stage = document.getElementById('stage');
-    var v = document.getElementsByTagName("video")[0],
-      controls = document.getElementById("change");
+class VideoTransform {
+    constructor() {
+        // Video element
+        this.video = document.getElementById('videoPlayer');
+        this.videoContainer = document.getElementById('videoContainer');
 
-    let ratioX = 1;
-    let ratioY = 1;
-    // let ratioX = v.videoWidth / v.offsetWidth;
-    // let ratioY = v.videoHeight / v.offsetHeight;
+        // Transform controls
+        this.zoomInBtn = document.getElementById('zoomIn');
+        this.zoomOutBtn = document.getElementById('zoomOut');
+        this.moveUpBtn = document.getElementById('moveUp');
+        this.moveDownBtn = document.getElementById('moveDown');
+        this.moveLeftBtn = document.getElementById('moveLeft');
+        this.moveRightBtn = document.getElementById('moveRight');
+        this.rotateLeftBtn = document.getElementById('rotateLeft');
+        this.rotateRightBtn = document.getElementById('rotateRight');
+        this.resetPositionBtn = document.getElementById('resetPosition');
+        this.resetAllBtn = document.getElementById('resetAll');
 
-    /* Array of possible browser specific settings for transformation */
-    var properties = [
-        "transform",
-        "WebkitTransform",
-        "MozTransform",
-        "msTransform",
-        "OTransform"
-      ],
-      prop = properties[0];
+        // Info displays
+        this.zoomValue = document.getElementById('zoomValue');
+        this.rotationValue = document.getElementById('rotationValue');
+        this.posX = document.getElementById('posX');
+        this.posY = document.getElementById('posY');
+        this.coordX = document.getElementById('coordX');
+        this.coordY = document.getElementById('coordY');
 
-    /* Iterators and stuff */
-    var i, j, t;
+        // Transform state
+        this.zoom = 1;
+        this.rotation = 0;
+        this.translateX = 0;
+        this.translateY = 0;
 
-    /* Find out which CSS transform the browser supports */
-    for (i = 0, j = properties.length; i < j; i++) {
-      if (typeof stage.style[properties[i]] !== "undefined") {
-        prop = properties[i];
-        break;
-      }
+        // Interaction state
+        this.isDragging = false;
+        this.dragStartX = 0;
+        this.dragStartY = 0;
+        this.dragStartTranslateX = 0;
+        this.dragStartTranslateY = 0;
+        this.continuousInterval = null;
+
+        // Constants
+        this.ZOOM_STEP = 0.5;
+        this.ROTATION_STEP = 5;
+        this.MOVE_STEP = 50;
+        this.CONTINUOUS_INTERVAL = 100; // ms
+
+        this.init();
     }
 
-    /* Position video */
-    v.style.left = 0;
-    v.style.top = 0;
-
-    //move the video with the mouse
-    v.addEventListener(
-      "mousedown",
-      function(e) {
-        let shiftX = event.offsetX;
-        let shiftY = event.offsetY;
-
-        //show pixels on the screen at push
-        let styleX = document.getElementById("styleX");
-        let styleY = document.getElementById("styleY");
-
-        styleX.innerHTML = "X: " + Math.floor(shiftX * ratioX);
-        styleY.innerHTML = "Y: " + Math.floor(shiftY * ratioY);
-
-        // Find the actual parent that left/top is relative to
-        let relativeParent = v.parentNode;
-        for (;;) {
-          let pos = document.defaultView.getComputedStyle(relativeParent)
-            .position;
-          console.log("pos: ", pos);
-
-          if (pos === "static" && relativeParent.parentNode)
-            relativeParent = relativeParent.parentNode;
-          else break;
+    init() {
+        if (!this.video) {
+            console.warn('Video element not found');
+            return;
         }
 
-        // Flex has special treatment, as it's internal padding behaves like margin
-        let relativeParentComputedStyle = document.defaultView.getComputedStyle(
-          relativeParent
-        );
-        let isRelativeParentFlexItem = !!document.defaultView.getComputedStyle(
-          relativeParent.parentNode
-        ).flex;
+        this.setupEventListeners();
+        this.applyTransform();
+        this.updateDisplays();
+    }
 
-        // console.log('v.getBoundingClientRect().left: ', v.getBoundingClientRect().left, 'v.getBoundingClientRect().top: ', v.getBoundingClientRect().top);
-        // console.log('shiftX: ', shiftX, 'shiftY: ', shiftY);
-        // console.log('v.style.left: ', parseInt(v.style.left), 'v.style.top: ', parseInt(v.style.top));
+    setupEventListeners() {
+        // Zoom controls
+        this.setupContinuousButton(this.zoomInBtn, () => this.zoomIn());
+        this.setupContinuousButton(this.zoomOutBtn, () => this.zoomOut());
 
-        function moveAt(movementX, movementY, clientX, clientY) {
-          // Extra special offsets
-          let parentX = relativeParent.getBoundingClientRect().left;
-          let parentY = relativeParent.getBoundingClientRect().top;
+        // Position controls
+        this.setupContinuousButton(this.moveUpBtn, () => this.moveUp());
+        this.setupContinuousButton(this.moveDownBtn, () => this.moveDown());
+        this.setupContinuousButton(this.moveLeftBtn, () => this.moveLeft());
+        this.setupContinuousButton(this.moveRightBtn, () => this.moveRight());
 
-          let offsetX = isRelativeParentFlexItem
-            ? parseFloat(relativeParentComputedStyle.paddingLeft) || 0
-            : 0;
-          let offsetY = isRelativeParentFlexItem
-            ? parseFloat(relativeParentComputedStyle.paddingTop) || 0
-            : 0;
+        // Rotation controls
+        this.setupContinuousButton(this.rotateLeftBtn, () => this.rotateLeft());
+        this.setupContinuousButton(this.rotateRightBtn, () => this.rotateRight());
 
-          // Set position
-          v.style.left = parseInt(v.style.left, 10) + movementX + "px";
-          v.style.top = parseInt(v.style.top, 10) + movementY + "px";
+        // Reset controls
+        this.resetPositionBtn?.addEventListener('click', () => this.resetPosition());
+        this.resetAllBtn?.addEventListener('click', () => this.resetAll());
 
-          // v.style.left = (clientX - parentX - offsetX - shiftX) * zoom + 'px';
-          // v.style.top = (clientY - parentY - offsetY - shiftY) * zoom + 'px';
+        // Mouse/touch drag to move
+        this.video?.addEventListener('mousedown', (e) => this.startDrag(e));
+        this.video?.addEventListener('touchstart', (e) => this.startDrag(e.touches[0]));
+        document.addEventListener('mousemove', (e) => this.drag(e));
+        document.addEventListener('touchmove', (e) => this.drag(e.touches[0]));
+        document.addEventListener('mouseup', () => this.endDrag());
+        document.addEventListener('touchend', () => this.endDrag());
 
-          // Margins will not play well with left/top
-          v.style.marginLeft = "initial";
-          v.style.marginRight = "initial";
+        // Mouse wheel zoom
+        this.video?.addEventListener('wheel', (e) => this.handleWheel(e), { passive: false });
 
-          //console.log('moveAt - v.style.left: ', v.style.left, 'v.style.top: ', v.style.top);
+        // Show coordinates on hover
+        this.video?.addEventListener('mousemove', (e) => this.updateCoordinates(e));
+    }
+
+    // Button setup for continuous action (hold to repeat)
+    setupContinuousButton(button, action) {
+        if (!button) return;
+
+        button.addEventListener('mousedown', () => {
+            action();
+            this.continuousInterval = setInterval(action, this.CONTINUOUS_INTERVAL);
+        });
+
+        button.addEventListener('mouseup', () => this.stopContinuous());
+        button.addEventListener('mouseleave', () => this.stopContinuous());
+
+        button.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            action();
+            this.continuousInterval = setInterval(action, this.CONTINUOUS_INTERVAL);
+        });
+
+        button.addEventListener('touchend', () => this.stopContinuous());
+    }
+
+    stopContinuous() {
+        if (this.continuousInterval) {
+            clearInterval(this.continuousInterval);
+            this.continuousInterval = null;
         }
-        function onMouseMove(event) {
-          moveAt(
-            event.movementX,
-            event.movementY,
-            event.clientX,
-            event.clientY
-          );
+    }
+
+    // Zoom Controls
+    zoomIn() {
+        this.zoom = Math.min(this.zoom + this.ZOOM_STEP, 10);
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    zoomOut() {
+        this.zoom = Math.max(this.zoom - this.ZOOM_STEP, 0.1);
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    // Position Controls
+    moveUp() {
+        this.translateY -= this.MOVE_STEP;
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    moveDown() {
+        this.translateY += this.MOVE_STEP;
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    moveLeft() {
+        this.translateX -= this.MOVE_STEP;
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    moveRight() {
+        this.translateX += this.MOVE_STEP;
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    // Rotation Controls
+    rotateLeft() {
+        this.rotation = (this.rotation + this.ROTATION_STEP) % 360;
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    rotateRight() {
+        this.rotation = (this.rotation - this.ROTATION_STEP + 360) % 360;
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    // Reset Controls
+    resetPosition() {
+        this.translateX = 0;
+        this.translateY = 0;
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    resetAll() {
+        this.zoom = 1;
+        this.rotation = 0;
+        this.translateX = 0;
+        this.translateY = 0;
+        this.applyTransform();
+        this.updateDisplays();
+    }
+
+    // Drag to Move
+    startDrag(e) {
+        e.preventDefault();
+        this.isDragging = true;
+        this.dragStartX = e.clientX;
+        this.dragStartY = e.clientY;
+        this.dragStartTranslateX = this.translateX;
+        this.dragStartTranslateY = this.translateY;
+
+        if (this.video) {
+            this.video.style.cursor = 'grabbing';
         }
-        document.addEventListener("mousemove", onMouseMove);
+    }
 
-        v.addEventListener(
-          "mouseup",
-          function() {
-            document.removeEventListener("mousemove", onMouseMove);
-            v.onmouseup = null;
-          },
-          false
-        );
-      },
-      false
-    );
+    drag(e) {
+        if (!this.isDragging) return;
 
-    /* If a button was clicked (uses event delegation)...*/
-    controls.addEventListener(
-      "click",
-      function(e) {
-        t = e.target;
-        if (t.nodeName.toLowerCase() === "button") {
-          /* Check the class name of the button and act accordingly */
-          switch (t.className) {
-            /* Toggle play functionality and button label */
-            case "play":
-              if (v.paused) {
-                v.play();
-                t.innerHTML = "pause";
-              } else {
-                v.pause();
-                t.innerHTML = "play";
-              }
-              break;
+        e.preventDefault();
 
-            /* Increase zoom and set the transformation */
-            case "zoomin":
-              zoom = zoom + 0.5;
-              v.style[prop] = "scale(" + zoom + ") rotate(" + rotate + "deg)";
-              break;
+        const deltaX = e.clientX - this.dragStartX;
+        const deltaY = e.clientY - this.dragStartY;
 
-            /* Decrease zoom and set the transformation */
-            case "zoomout":
-              zoom = zoom - 0.5;
-              v.style[prop] = "scale(" + zoom + ") rotate(" + rotate + "deg)";
-              break;
+        this.translateX = this.dragStartTranslateX + deltaX;
+        this.translateY = this.dragStartTranslateY + deltaY;
 
-            /* Increase rotation and set the transformation */
-            case "rotateleft":
-              rotate = rotate + 5;
-              v.style[prop] = "rotate(" + rotate + "deg) scale(" + zoom + ")";
-              break;
+        this.applyTransform();
+        this.updateDisplays();
+    }
 
-            /* Decrease rotation and set the transformation */
-            case "rotateright":
-              rotate = rotate - 5;
-              v.style[prop] = "rotate(" + rotate + "deg) scale(" + zoom + ")";
-              break;
-
-            /* Move video around by reading its left/top and altering it */
-            case "left":
-              v.style.left = parseInt(v.style.left, 10) - 50 + "px";
-              break;
-            case "right":
-              v.style.left = parseInt(v.style.left, 10) + 50 + "px";
-              break;
-            case "up":
-              v.style.top = parseInt(v.style.top, 10) - 50 + "px";
-              break;
-            case "down":
-              v.style.top = parseInt(v.style.top, 10) + 50 + "px";
-              break;
-
-            /* Reset all to default */
-            case "reset":
-              zoom = 1;
-              rotate = 0;
-              v.style.top = 0 + "px";
-              v.style.left = 0 + "px";
-              v.style[prop] = "rotate(" + rotate + "deg) scale(" + zoom + ")";
-              break;
-          }
-
-          e.preventDefault();
+    endDrag() {
+        this.isDragging = false;
+        if (this.video) {
+            this.video.style.cursor = 'grab';
         }
-      },
-      false
-    );
-
-    //Continuous click
-    var interval;
-
-    $("#zoomin")
-      .mousedown(function() {
-        interval = setInterval(performWhileMouseDownZoomin, 100);
-      })
-      .mouseup(function() {
-        clearInterval(interval);
-      });
-    function performWhileMouseDownZoomin() {
-      zoom = zoom + 0.5;
-      v.style[prop] = "scale(" + zoom + ") rotate(" + rotate + "deg)";
     }
 
-    $("#zoomout")
-      .mousedown(function() {
-        interval = setInterval(performWhileMouseDownZoomout, 100);
-      })
-      .mouseup(function() {
-        clearInterval(interval);
-      });
-    function performWhileMouseDownZoomout() {
-      zoom = zoom - 0.5;
-      v.style[prop] = "scale(" + zoom + ") rotate(" + rotate + "deg)";
-    }
+    // Mouse Wheel Zoom
+    handleWheel(e) {
+        e.preventDefault();
 
-    $("#left")
-      .mousedown(function() {
-        interval = setInterval(performWhileMouseDownLeft, 100);
-      })
-      .mouseup(function() {
-        clearInterval(interval);
-      });
-    function performWhileMouseDownLeft() {
-      v.style.left = parseInt(v.style.left, 10) - 50 + "px";
-    }
+        if (!this.video || !this.videoContainer) return;
 
-    $("#right")
-      .mousedown(function() {
-        interval = setInterval(performWhileMouseDownRight, 100);
-      })
-      .mouseup(function() {
-        clearInterval(interval);
-      });
-    function performWhileMouseDownRight() {
-      v.style.left = parseInt(v.style.left, 10) + 50 + "px";
-    }
+        // Get mouse position relative to video
+        const rect = this.video.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
 
-    $("#up")
-      .mousedown(function() {
-        interval = setInterval(performWhileMouseDownUp, 100);
-      })
-      .mouseup(function() {
-        clearInterval(interval);
-      });
-    function performWhileMouseDownUp() {
-      v.style.top = parseInt(v.style.top, 10) - 50 + "px";
-    }
+        // Calculate center offset
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
 
-    $("#down")
-      .mousedown(function() {
-        interval = setInterval(performWhileMouseDownDown, 100);
-      })
-      .mouseup(function() {
-        clearInterval(interval);
-      });
-    function performWhileMouseDownDown() {
-      v.style.top = parseInt(v.style.top, 10) + 50 + "px";
-    }
+        const oldZoom = this.zoom;
 
-    $("#rotateleft")
-      .mousedown(function() {
-        interval = setInterval(performWhileMouseDownRotateleft, 100);
-      })
-      .mouseup(function() {
-        clearInterval(interval);
-      });
-    function performWhileMouseDownRotateleft() {
-      rotate = rotate + 5;
-      v.style[prop] = "rotate(" + rotate + "deg) scale(" + zoom + ")";
-    }
-    $("#rotateright")
-      .mousedown(function() {
-        interval = setInterval(performWhileMouseDownRotateright, 100);
-      })
-      .mouseup(function() {
-        clearInterval(interval);
-      });
-    function performWhileMouseDownRotateright() {
-      rotate = rotate - 5;
-      v.style[prop] = "rotate(" + rotate + "deg) scale(" + zoom + ")";
-    }
-
-    // v.zoom = 1;
-
-    if (v.addEventListener) {
-      v.addEventListener("mousewheel", MouseWheelHandler, false);
-      v.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
-    } else v.attachEvent("onmousewheel", MouseWheelHandler);
-
-    function MouseWheelHandler(event) {
-      // cross-browser wheel delta
-      var e = event || e;
-      var delta = Math.max(-1, Math.min(1, e.wheelDelta || -e.detail));
-
-      //actual width % height of the video
-      let width = v.offsetWidth;
-      let height = v.offsetHeight;
-
-      // let oldScale = zoom;
-      // let mousePointTo = {
-      //   x: event.clientX - parseInt(v.style.top) / oldScale,
-      //   y: event.clientY - parseInt(v.style.top) / oldScale
-      // };
-
-      console.log(
-        "relative to the current window: event.clientX: ",
-        event.clientX,
-        " event.clientY: ",
-        event.clientY
-      );
-      console.log(
-        "position of video: v.style.top: ",
-        parseInt(v.style.top),
-        " v.style.left: ",
-        parseInt(v.style.left)
-      );
-      console.log(
-        "relative to the target element: event.offsetX: ",
-        event.offsetX,
-        " event.offsetY: ",
-        event.offsetY
-      );
-      // console.log('relative to the document: event.pageX: ', event.pageX, ' event.pageY: ', event.pageY);
-      // console.log('mousePointTo[x]: ', mousePointTo.x, ' mousePointTo[y]: ', mousePointTo.y);
-
-      if (delta === 1) {
-        zoom = zoom + 0.5;
-
-        v.style.top =
-          parseInt(v.style.top) +
-          (height / 2 - parseInt(event.offsetY)) / 2 +
-          "px";
-        v.style.left =
-          parseInt(v.style.left) +
-          (width / 2 - parseInt(event.offsetX)) / 2 +
-          "px";
-      } else {
-        if (zoom <= 1) {
-          zoom = 1;
-          v.style.top = 0 + "px";
-          v.style.left = 0 + "px";
+        // Zoom in or out
+        const delta = Math.sign(e.deltaY) * -1;
+        if (delta > 0) {
+            this.zoom = Math.min(this.zoom + this.ZOOM_STEP, 10);
         } else {
-          zoom = zoom - 0.5;
-
-          v.style.top =
-            parseInt(v.style.top) -
-            (height / 2 - parseInt(event.offsetY)) / 2 +
-            "px";
-          v.style.left =
-            parseInt(v.style.left) -
-            (width / 2 - parseInt(event.offsetX)) / 2 +
-            "px";
+            this.zoom = Math.max(this.zoom - this.ZOOM_STEP, 0.1);
         }
-      }
 
-      v.style[prop] = "scale(" + zoom + ") rotate(" + rotate + "deg)";
-      console.log("zoom: ", zoom);
+        // Adjust position to zoom towards mouse cursor
+        const zoomFactor = this.zoom / oldZoom;
+        const offsetX = mouseX - centerX;
+        const offsetY = mouseY - centerY;
 
-      console.log("width: ", width);
-      console.log("height: ", height);
+        this.translateX += offsetX * (1 - zoomFactor);
+        this.translateY += offsetY * (1 - zoomFactor);
 
-      //let newScale = zoom;
-      // var newPos = {
-      //   x:
-      //     -(mousePointTo.x - event.clientX / newScale) *
-      //     newScale,
-      //   y:
-      //     -(mousePointTo.y - event.clientY / newScale) *
-      //     newScale
-      // };
-
-      // console.log('newPos: ', newPos);
-      // v.style.top = newPos.y + 'px';
-      // v.style.left = newPos.x + 'px';
+        this.applyTransform();
+        this.updateDisplays();
     }
-  })();
-});
+
+    // Apply Transform
+    applyTransform() {
+        if (!this.video) return;
+
+        const transform = `
+            translate(${this.translateX}px, ${this.translateY}px)
+            scale(${this.zoom})
+            rotate(${this.rotation}deg)
+        `;
+
+        this.video.style.transform = transform;
+    }
+
+    // Update Displays
+    updateDisplays() {
+        if (this.zoomValue) {
+            this.zoomValue.textContent = `${this.zoom.toFixed(1)}x`;
+        }
+
+        if (this.rotationValue) {
+            this.rotationValue.textContent = `${this.rotation}°`;
+        }
+
+        if (this.posX) {
+            this.posX.textContent = `${Math.round(this.translateX)}px`;
+        }
+
+        if (this.posY) {
+            this.posY.textContent = `${Math.round(this.translateY)}px`;
+        }
+    }
+
+    updateCoordinates(e) {
+        if (!this.video || !this.coordX || !this.coordY) return;
+
+        const rect = this.video.getBoundingClientRect();
+        const x = Math.round(e.clientX - rect.left);
+        const y = Math.round(e.clientY - rect.top);
+
+        // Calculate coordinates relative to original video size
+        const scaleX = this.video.videoWidth / rect.width;
+        const scaleY = this.video.videoHeight / rect.height;
+
+        const videoX = Math.round(x * scaleX);
+        const videoY = Math.round(y * scaleY);
+
+        this.coordX.textContent = `X: ${videoX}`;
+        this.coordY.textContent = `Y: ${videoY}`;
+    }
+}
+
+// Initialize the video transform controller when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.videoTransform = new VideoTransform();
+    });
+} else {
+    window.videoTransform = new VideoTransform();
+}
+
+// Export for use in other modules
+export default VideoTransform;

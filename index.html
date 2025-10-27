@@ -1,379 +1,344 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes"
-    />
-    <title>Video Player</title>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>נגן וידאו מודרני 2025</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Toggle Dark Mode -->
+    <button class="theme-toggle" id="themeToggle" aria-label="החלף ערכת נושא">
+        <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+    </button>
 
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-      crossorigin="anonymous"
-    />
-
-    <!-- Latest compiled and minified CSS -->
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
-      crossorigin="anonymous"
-    />
-
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-      integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-      crossorigin="anonymous"
-    ></script>
-
-    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-    <script src="https://unpkg.com/konva@3.2.6/konva.min.js"></script>
-
-    <link rel="stylesheet" href="style.css" />
-
-    <script type="text/javascript" src="script.js"></script>
-    <script type="text/javascript" src="script_canvas.js"></script>
-    <script type="text/javascript" src="transformvideo.js"></script>
-
-    <link rel="preload" href="video/DJI_05_08.mp4" as="video" />
-
-    <style>
-      button {
-        background-color: rgb(209, 207, 207);
-        /* Green */
-        /* border: none; */
-        color: rgb(5, 5, 5);
-        padding: 0px 8px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 22px;
-        border-radius: 5px;
-      }
-
-      button:hover {
-        box-shadow: 0 6px 8px 0 rgba(0, 0, 0, 0.24),
-          0 7px 20px 0 rgba(0, 0, 0, 0.19);
-      }
-
-      button:active {
-        color: rgb(245, 239, 239);
-      }
-
-      #playpausebtn {
-        border-radius: 50%;
-        font-size: 28px;
-      }
-
-      form label,
-      form button {
-        background-color: #7f9ccb;
-        padding: 5px 10px;
-        border-radius: 5px;
-        border: 1px ridge black;
-        font-size: 0.8rem;
-        height: auto;
-      }
-
-      form label:hover,
-      form button:hover {
-        background-color: #2d5ba3;
-        color: white;
-      }
-
-      form label:active,
-      form button:active {
-        background-color: #0d3f8f;
-        color: white;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container-fluid">
-      <!-- Navigation -->
-      <nav
-        class="navbar navbar-expand-lg static-top"
-        style="margin-left: 5px"
-      >
-        <a class="navbar-brand" href="index.html" style="padding: 2px">
-          <img
-            class="responsive"
-            src="images/code.png"
-            alt=""
-            style="width: 15%"
-          />
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarResponsive"
-          aria-controls="navbarResponsive"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse float-right" id="navbarResponsive">
-          <ul class="navbar-nav ml-auto navbar-right">
-            <li class="nav-item active">
-              <a class="nav-link" href="login.html">Login</a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-      <!-- /.Navigation -->
-
-      <!--Content-->
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-2" style="z-index: 2; padding: 5px; height: 82vh">
-            <div style="float: none">
-            </br>
-              <div id="media-play-list" style="color: rgb(8, 8, 8)">
-                <h4>Upload video</h4>
-                <input
-                  type="file"
-                  value="Upload video"
-                  id="image_uploads"
-                  name="image_uploads"
-                  accept="video/*"
-                  style="color: transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="col-8">
-            <div style="width: 100%; margin: 0">
-              <div class="playr_wrapper" id="playr_wrapper_0" tabindex="0">
-                <div
-                  class="playr_captions_wrapper"
-                  id="playr_captions_wrapper_0 my_video"
-                >
-                  <div
-                    class="playr_video_container"
-                    id="playr_video_container_0"
-                    style="border: 1px #ffffff; overflow: hidden"
-                  >
-                    <video
-                      class="playr_video"
-                      id="playr_video_0"
-                      oncanplay="isLoaded()"
-                      ontimeupdate="myFunction(this)"
-                    >
-                      <source
-                        src="video/DJI_05_08_Trim1.mp4"
-                        preload="metadata"
-                        type="video/mp4"
-                      />
-                    </video>
-                  </div>
-                  <div class="playr_captions" id="playr_captions_0"></div>
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <h1>נגן וידאו מתקדם</h1>
                 </div>
+                <nav class="header-nav">
+                    <a href="#" class="nav-link active">נגן</a>
+                    <a href="login.html" class="nav-link">התחברות</a>
+                </nav>
+            </div>
+        </header>
 
-                <div class="row wrapper">
-                  <div class="col-9 box">
-                    <progress id="progress-bar" min="0" max="100" value="0">
-                      0% played
-                    </progress>
-                  </div>
-                  <div class="col-1 box">
-                    <div>
-                      <span id="playr_video_curpos_0" role="timer">00</span> /
-                      <span id="playr_video_duration_0">00</span>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar Left -->
+            <aside class="sidebar sidebar-left">
+                <div class="glass-card">
+                    <h2 class="card-title">העלאת וידאו</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <input
+                            type="file"
+                            id="videoUpload"
+                            accept="video/*"
+                            hidden
+                        >
+                        <label for="videoUpload" class="upload-label">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <span>גרור קובץ לכאן או לחץ להעלאה</span>
+                            <span class="upload-hint">MP4, WebM, OGG</span>
+                        </label>
                     </div>
-                  </div>
-                  <div class="col-2 box">
-                    <input
-                      type="number"
-                      id="chooseFrame"
-                      name="chooseFrame"
-                      min="1"
-                      style="width: 50%; height: 100%"
-                    />
-                    <button
-                      class="choosebtn"
-                      id="choosebtn"
-                      tabindex="0"
-                      onclick="choose();"
-                    >
-                      &#10173;
-                    </button>
-                  </div>
+                    <div class="file-info" id="fileInfo" style="display: none;">
+                        <div class="file-details">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                            <div class="file-text">
+                                <div class="file-name" id="fileName"></div>
+                                <div class="file-size" id="fileSize"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="change">
-                  <button
-                    class="revSpeed"
-                    id="revSpeed"
-                    onclick="revSpeed(3.0)"
-                  >
-                    &#10094;&#10094;
-                  </button>
-                  <button class="rev" id="rev" onclick="rev(1.0)">
-                    &#10094;
-                  </button>
-                  <button
-                    class="playpausebtn"
-                    id="playpausebtn"
-                    onclick="playPause()"
-                  >
-                    &#9654;
-                  </button>
-                  <button
-                    class="speedbtn"
-                    id="speedbtn"
-                    onclick="setPlaySpeed()"
-                  >
-                    &#10095;&#10095;
-                  </button>
-                  <button class="zoomin" id="zoomin">+</button>
-                  <button class="zoomout" id="zoomout">-</button>
-                  <button class="left" id="left">⇠</button>
-                  <button class="right" id="right">⇢</button>
-                  <button class="up" id="up">⇡</button>
-                  <button class="down" id="down">⇣</button>
-                  <button class="rotateleft" id="rotateleft">&#x21bb;</button>
-                  <button class="rotateright" id="rotateright">&#x21ba;</button>
-                  <button class="reset" id="reset">reset</button>
-                  <span id="styleX"></span>
-                  <span id="styleY"></span>
-                </div>
-              </div>
-            </div>
-            <!-- <div id="container"></div> -->
-          </div>
 
-          <div class="col-2" style="padding: 5px; height: 82vh">
-            <div style="float: none">
-              <!-- <canvas style="border: 1px solid black; width: 100%;"></canvas> -->
-              <div id="stage" style="background-color: white"></div>
-              <div id="controls"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+                <!-- Playlist (future feature) -->
+                <div class="glass-card">
+                    <h2 class="card-title">רשימת השמעה</h2>
+                    <div class="playlist-empty">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18V5l12-2v13"></path>
+                            <circle cx="6" cy="18" r="3"></circle>
+                            <circle cx="18" cy="16" r="3"></circle>
+                        </svg>
+                        <p>אין סרטונים ברשימה</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Video Player Area -->
+            <section class="video-section">
+                <div class="glass-card video-card">
+                    <div class="video-container" id="videoContainer">
+                        <video
+                            id="videoPlayer"
+                            class="video-player"
+                            preload="metadata"
+                        >
+                            <source src="video/DJI_05_08_Trim1.mp4" type="video/mp4">
+                            הדפדפן שלך אינו תומך בתגית וידאו.
+                        </video>
+                        <div class="video-overlay" id="videoOverlay">
+                            <button class="play-overlay" id="playOverlay">
+                                <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="video-coordinates" id="videoCoordinates">
+                            <span id="coordX">X: 0</span>
+                            <span id="coordY">Y: 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Video Controls -->
+                    <div class="video-controls">
+                        <!-- Progress Bar -->
+                        <div class="progress-container">
+                            <div class="progress-bar" id="progressBar">
+                                <div class="progress-filled" id="progressFilled"></div>
+                                <div class="progress-handle" id="progressHandle"></div>
+                            </div>
+                            <div class="time-display">
+                                <span id="currentTime">0</span>
+                                <span class="time-separator">/</span>
+                                <span id="totalTime">0</span>
+                                <span class="frame-label">פריימים</span>
+                            </div>
+                        </div>
+
+                        <!-- Control Buttons -->
+                        <div class="controls-row">
+                            <div class="controls-group">
+                                <button class="control-btn" id="rewindFast" title="הרצה מהירה אחורה">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/>
+                                    </svg>
+                                </button>
+                                <button class="control-btn" id="rewind" title="הרצה אחורה">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+                                    </svg>
+                                </button>
+                                <button class="control-btn control-btn-primary" id="playPause" title="נגן/עצור">
+                                    <svg class="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                    </svg>
+                                    <svg class="pause-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                                        <rect x="6" y="4" width="4" height="16"></rect>
+                                        <rect x="14" y="4" width="4" height="16"></rect>
+                                    </svg>
+                                </button>
+                                <button class="control-btn" id="forward" title="הרצה קדימה מהירה">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                                    </svg>
+                                </button>
+                                <button class="control-btn" id="forwardFast" title="הרצה מהירה קדימה">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="controls-group">
+                                <div class="frame-selector">
+                                    <input
+                                        type="number"
+                                        id="frameInput"
+                                        placeholder="פריים"
+                                        min="0"
+                                    >
+                                    <button class="control-btn" id="frameGo" title="עבור לפריים">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sidebar Right - Transform Controls -->
+            <aside class="sidebar sidebar-right">
+                <div class="glass-card">
+                    <h2 class="card-title">כלי עריכה</h2>
+
+                    <!-- Zoom Controls -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                <line x1="11" y1="8" x2="11" y2="14"></line>
+                                <line x1="8" y1="11" x2="14" y2="11"></line>
+                            </svg>
+                            זום
+                        </h3>
+                        <div class="button-group">
+                            <button class="tool-btn" id="zoomIn" title="הגדל">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    <line x1="11" y1="8" x2="11" y2="14"></line>
+                                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                                </svg>
+                                הגדל
+                            </button>
+                            <button class="tool-btn" id="zoomOut" title="הקטן">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                                </svg>
+                                הקטן
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Position Controls -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="5 9 2 12 5 15"></polyline>
+                                <polyline points="9 5 12 2 15 5"></polyline>
+                                <polyline points="15 19 12 22 9 19"></polyline>
+                                <polyline points="19 9 22 12 19 15"></polyline>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <line x1="12" y1="2" x2="12" y2="22"></line>
+                            </svg>
+                            מיקום
+                        </h3>
+                        <div class="position-grid">
+                            <button class="tool-btn" id="moveUp" title="הזז למעלה">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                            </button>
+                            <div class="position-row">
+                                <button class="tool-btn" id="moveLeft" title="הזז שמאלה">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="15 18 9 12 15 6"></polyline>
+                                    </svg>
+                                </button>
+                                <button class="tool-btn tool-btn-secondary" id="resetPosition" title="אפס מיקום">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                                <button class="tool-btn" id="moveRight" title="הזז ימינה">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+                            <button class="tool-btn" id="moveDown" title="הזז למטה">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Rotation Controls -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            סיבוב
+                        </h3>
+                        <div class="button-group">
+                            <button class="tool-btn" id="rotateLeft" title="סובב שמאלה">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                </svg>
+                                סובב שמאל
+                            </button>
+                            <button class="tool-btn" id="rotateRight" title="סובב ימינה">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                                סובב ימין
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Reset All -->
+                    <button class="reset-btn" id="resetAll">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <polyline points="23 20 23 14 17 14"></polyline>
+                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                        </svg>
+                        אפס הכל
+                    </button>
+                </div>
+
+                <!-- Transform Info -->
+                <div class="glass-card">
+                    <h2 class="card-title">מידע</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">זום</span>
+                            <span class="info-value" id="zoomValue">1.0x</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">סיבוב</span>
+                            <span class="info-value" id="rotationValue">0°</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">X</span>
+                            <span class="info-value" id="posX">0px</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Y</span>
+                            <span class="info-value" id="posY">0px</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
     </div>
 
-    <!--/.Content-->
-
-    <!-- Footer -->
-    <footer class="page-footer font-small blue fixed-bottom">
-     
-    </footer>
-    <!-- Footer -->
-
-    <script
-      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-      crossorigin="anonymous"
-    ></script>
-
-    <script>
-      //Choose Video
-
-      var input1 = document.querySelector("#image_uploads");
-      var preview = document.querySelector("#playr_video_0");
-
-      input1.addEventListener("change", updateImageDisplay);
-      function updateImageDisplay() {
-        while (preview.firstChild) {
-          preview.removeChild(preview.firstChild);
-        }
-
-        var curFiles = input1.files;
-        if (curFiles.length === 0) {
-          var para = document.createElement("p");
-          para.textContent = "No files currently selected for upload";
-          preview.appendChild(para);
-        } else {
-          var list = document.createElement("ol");
-          preview.appendChild(list);
-          for (var i = 0; i < curFiles.length; i++) {
-            var listItem = document.createElement("li");
-            var para = document.createElement("p");
-            if (validFileType(curFiles[i])) {
-              para.textContent =
-                "File name " +
-                curFiles[i].name +
-                ", file size " +
-                returnFileSize(curFiles[i].size) +
-                ".";
-              var vid1 = document.createElement("video");
-              vid1.src = window.URL.createObjectURL(curFiles[i]);
-              vid1.autoplay = true;
-
-              // listItem.appendChild(vid1);
-              // listItem.appendChild(para);
-
-              loadVideo(vid1.src);
-            } else {
-              para.textContent =
-                "File name " +
-                curFiles[i].name +
-                ": Not a valid file type. Update your selection.";
-              listItem.appendChild(para);
-            }
-
-            list.appendChild(listItem);
-          }
-        }
-      }
-      var fileTypes = ["video/mp4", "video/ogg"];
-
-      function validFileType(file) {
-        for (var i = 0; i < fileTypes.length; i++) {
-          if (file.type === fileTypes[i]) {
-            return true;
-          }
-        }
-
-        return false;
-      }
-      function returnFileSize(number) {
-        if (number < 1024) {
-          return number + "bytes";
-        } else if (number >= 1024 && number < 1048576) {
-          return (number / 1024).toFixed(1) + "KB";
-        } else if (number >= 1048576) {
-          return (number / 1048576).toFixed(1) + "MB";
-        }
-      }
-    </script>
-  </body>
+    <!-- Scripts -->
+    <script type="module" src="script.js"></script>
+    <script type="module" src="transformvideo.js"></script>
+</body>
 </html>
