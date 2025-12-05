@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק שמואל וראשית המלוכה 👑</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #764ba2;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .progress-container {
+            background: #f0f0f0;
+            border-radius: 20px;
+            height: 30px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #764ba2;
+            font-weight: bold;
+        }
+
+        .category-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .category-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: cardAppear 0.5s ease-out;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 3px solid #764ba2;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .skip-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .skip-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            animation: feedbackPop 0.5s ease-out;
+        }
+
+        @keyframes feedbackPop {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #155724;
+            border: 3px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #721c24;
+            border: 3px solid #dc3545;
+        }
+
+        .correct-answer {
+            margin-top: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            color: #333;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5em;
+            animation: celebrate 1s ease-out;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes celebrate {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(3) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #764ba2;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .completion-card {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            animation: cardAppear 0.5s ease-out;
+        }
+
+        .completion-card h2 {
+            color: #764ba2;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .completion-card p {
+            font-size: 1.3em;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .restart-btn {
+            margin-top: 30px;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .encouragement {
+            text-align: center;
+            font-size: 1.3em;
+            color: #764ba2;
+            margin: 20px 0;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .question-text {
+                font-size: 1.1em;
+            }
+
+            .btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👑 משחק שמואל וראשית המלוכה 👑</h1>
+        <p class="subtitle">בואי נלמד ביחד ונהנה! 🌟</p>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">נקודות</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="correct">0</div>
+                <div class="stat-label">תשובות נכונות</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="total">0</div>
+                <div class="stat-label">שאלות שנענו</div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress">0%</div>
+        </div>
+
+        <div class="category-selector" id="categorySelector">
+            <button class="category-btn active" data-category="all">כל השאלות 📚</button>
+            <button class="category-btn" data-category="0">חנה ושמואל 👶</button>
+            <button class="category-btn" data-category="1">בני עלי 📖</button>
+            <button class="category-btn" data-category="2">מלחמת הפלשתים ⚔️</button>
+            <button class="category-btn" data-category="3">שמואל השופט 👨‍⚖️</button>
+            <button class="category-btn" data-category="4">שאול המלך 👑</button>
+        </div>
+
+        <div id="encouragement" class="encouragement"></div>
+
+        <div id="gameContainer"></div>
+    </div>
+
+    <script>
+        const questions = [
+            // חלק א': חנה, אלקנה, ולידת שמואל
+            {
+                category: 0,
+                question: "מהם שמות שתי נשותיו של אלקנה?",
+                answer: ["חנה ופנינה", "חנה פנינה"],
+                hint: "שתי נשים - אחת עם ילדים ואחת בלי..."
+            },
+            {
+                category: 0,
+                question: "לאן נהג אלקנה לעלות מדי שנה?",
+                answer: ["שילה", "לשילה"],
+                hint: "המקום שבו היה משכן ה'"
+            },
+            {
+                category: 0,
+                question: "מה נדרה חנה אם ה' ייתן לה בן?",
+                answer: ["תקדיש אותו לה'", "להקדיש אותו לה'", "תיתן אותו לה'"],
+                hint: "היא הבטיחה שהבן ישרת את ה'..."
+            },
+            {
+                category: 0,
+                question: "במה חשב עלי הכהן שחנה עסוקה כשהתפללה?",
+                answer: ["שיכורה", "שהיא שיכורה", "שתויה"],
+                hint: "הוא חשב שהיא שתתה יותר מדי..."
+            },
+            {
+                category: 0,
+                question: "איך קראו לילד שנולד לחנה?",
+                answer: ["שמואל"],
+                hint: "השם מתחיל באות ש'..."
+            },
+            {
+                category: 0,
+                question: "לאן הביאה חנה את שמואל כשהוא נגמל?",
+                answer: ["שילה", "לשילה", "לבית ה' בשילה"],
+                hint: "אותו מקום שאלקנה היה הולך אליו כל שנה..."
+            },
+
+            // חלק ב': חטא בני עלי וקריאת שמואל
+            {
+                category: 1,
+                question: "מה היו שמות שני בני עלי?",
+                answer: ["חפני ופנחס", "חפני פנחס"],
+                hint: "שניהם התחילו באות פ' וח'..."
+            },
+            {
+                category: 1,
+                question: "כמה פעמים קרא ה' לשמואל עד שעלי הבין?",
+                answer: ["3", "שלוש", "שלוש פעמים", "3 פעמים"],
+                hint: "פעם ראשונה, שנייה ו..."
+            },
+            {
+                category: 1,
+                question: "מה אמר עלי לשמואל לענות לה' בפעם הבאה?",
+                answer: ["דבר ה' כי שומע עבדך", "דבר יהוה כי שומע עבדך"],
+                hint: "דבר ה' כי..."
+            },
+            {
+                category: 1,
+                question: "מאיזה שבטים ידעו את שמואל כנביא?",
+                answer: ["מדן ועד באר שבע", "דן ועד באר שבע"],
+                hint: "כל ישראל, מהצפון ועד הדרום..."
+            },
+
+            // חלק ג': מלחמת הפלשתים ולקיחת הארון
+            {
+                category: 2,
+                question: "כמה אנשים מתו בקרב הראשון עם הפלשתים?",
+                answer: ["ארבעת אלפים", "4000", "ארבעה אלפים"],
+                hint: "אלפים של אנשים, מספר עגול..."
+            },
+            {
+                category: 2,
+                question: "מה החליטו זקני ישראל להביא לקרב השני?",
+                answer: ["ארון ברית ה'", "ארון ה'", "את הארון"],
+                hint: "דבר קדוש מאוד שהיה בשילה..."
+            },
+            {
+                category: 2,
+                question: "מי ליוו את הארון כשהוצא משילה?",
+                answer: ["חפני ופנחס", "חפני פנחס", "שני בני עלי"],
+                hint: "שני בני עלי..."
+            },
+            {
+                category: 2,
+                question: "כמה אנשים נפלו בקרב השני?",
+                answer: ["שלושים אלף", "30000", "30 אלף"],
+                hint: "הרבה יותר מהקרב הראשון..."
+            },
+            {
+                category: 2,
+                question: "איך מת עלי הכהן?",
+                answer: ["נפל מהכיסא", "נפל אחורנית", "נשברה מפרקתו"],
+                hint: "הוא נפל מהכיסא כשהוא שמע..."
+            },
+            {
+                category: 2,
+                question: "איך קראה כלת עלי לבנה שנולד?",
+                answer: ["אי כבוד", "איכבוד"],
+                hint: "שם שאומר שהכבוד עזב..."
+            },
+            {
+                category: 2,
+                question: "לאיזו עיר הביאו הפלשתים את הארון?",
+                answer: ["אשדוד", "לאשדוד"],
+                hint: "עיר פלשתית שמתחילה באות א'..."
+            },
+            {
+                category: 2,
+                question: "מה קרה לפסל דגון?",
+                answer: ["נפל", "נפל ארצה", "ראשו וידיו נכרתו"],
+                hint: "הוא נפל לפני הארון..."
+            },
+            {
+                category: 2,
+                question: "כמה זמן שהה הארון בשדה פלשתים?",
+                answer: ["שבעה חודשים", "7 חודשים", "שבעה"],
+                hint: "מספר מזלות, חודשים..."
+            },
+            {
+                category: 2,
+                question: "מה היה האשם שהפלשתים שלחו עם הארון?",
+                answer: ["חמישה טחורי זהב וחמישה עכברי זהב", "טחורי זהב ועכברי זהב"],
+                hint: "דברים מזהב - טחורים ועכברים..."
+            },
+            {
+                category: 2,
+                question: "לאיזו עיר הגיע הארון מהפלשתים?",
+                answer: ["בית שמש", "לבית שמש"],
+                hint: "עיר עם שם של גוף שמימי..."
+            },
+            {
+                category: 2,
+                question: "לאן נלקח הארון מבית שמש?",
+                answer: ["קריית יערים", "לקריית יערים", "בית אבינדב"],
+                hint: "מקום עם שם של עצים..."
+            },
+
+            // חלק ד': שמואל כשופט והדרישה למלך
+            {
+                category: 3,
+                question: "כמה זמן שהה הארון בקריית יערים?",
+                answer: ["עשרים שנה", "20 שנה", "עשרים"],
+                hint: "שתי עשרות של שנים..."
+            },
+            {
+                category: 3,
+                question: "מה דרש שמואל מבני ישראל כדי שה' יושיעם?",
+                answer: ["לשוב אל ה' בכל לבבם", "להסיר אלוהי נכר"],
+                hint: "לשוב לה' ולהסיר..."
+            },
+            {
+                category: 3,
+                question: "איזו אבן הקים שמואל לזכר הניצחון?",
+                answer: ["אבן העזר", "אבן העזרה"],
+                hint: "אבן עם שם שאומר 'עזרה'..."
+            },
+            {
+                category: 3,
+                question: "מדוע ביקשו זקני ישראל מלך?",
+                answer: ["בני שמואל לא הלכו בדרכיו", "להיות ככל הגוים"],
+                hint: "הם רצו להיות כמו שאר העמים..."
+            },
+            {
+                category: 3,
+                question: "מה אמר ה' לשמואל על בקשת העם למלך?",
+                answer: ["לא אותך מאסו כי אותי מאסו", "אותי מאסו ממלוך עליהם"],
+                hint: "לא את שמואל הם דוחים אלא..."
+            },
+
+            // חלק ה': בחירת שאול למלך
+            {
+                category: 4,
+                question: "מאיזה שבט היה שאול?",
+                answer: ["בנימין", "בנימין", "משבט בנימין"],
+                hint: "שבט קטן שמתחיל באות ב'..."
+            },
+            {
+                category: 4,
+                question: "איך תואר מראהו של שאול?",
+                answer: ["גבוה משכמו ומעלה", "בחור וטוב"],
+                hint: "הוא היה הכי גבוה..."
+            },
+            {
+                category: 4,
+                question: "מה אבד לקיש אבי שאול?",
+                answer: ["אתונות", "האתונות"],
+                hint: "בעלי חיים נקביים שעובדים..."
+            },
+            {
+                category: 4,
+                question: "כמה כסף היה לנער של שאול?",
+                answer: ["רבע שקל", "רבע שקל כסף"],
+                hint: "חלק מארבעה של שקל..."
+            },
+            {
+                category: 4,
+                question: "איך קראו לנביא בעבר?",
+                answer: ["רואה", "הרואה"],
+                hint: "מי שרואה את העתיד..."
+            },
+            {
+                category: 4,
+                question: "מה עשה שמואל לשאול כשמשח אותו?",
+                answer: ["יצק שמן על ראשו", "נישק אותו"],
+                hint: "הוא שפך שמן..."
+            },
+            {
+                category: 4,
+                question: "היכן התחבא שאול כשנבחר למלך?",
+                answer: ["בכלים", "אל הכלים"],
+                hint: "בין החפצים..."
+            },
+            {
+                category: 4,
+                question: "מה קראו העם כשראו את שאול?",
+                answer: ["יחי המלך", "יחי המלך!"],
+                hint: "קריאה שאומרים למלך חדש..."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let totalAnswered = 0;
+        let currentCategory = 'all';
+        let filteredQuestions = [...questions];
+        let answeredQuestions = [];
+
+        const encouragements = [
+            "את עושה עבודה מעולה! 🌟",
+            "כל הכבוד! את לומדת נהדר! 💫",
+            "וואו! ממש מתקדמת! 🎉",
+            "יופי של עבודה! 🌈",
+            "המשיכי ככה! את מדהימה! ⭐",
+            "ברבבה! את יודעת את זה! 🎯",
+            "מושלם! את צועדת לעבר 100! 🚀"
+        ];
+
+        const positiveMessages = [
+            "מצוין! 🎉",
+            "נכון לגמרי! 🌟",
+            "וואו! נהדר! ⭐",
+            "יפה מאוד! 💫",
+            "כל הכבוד! 🎊",
+            "מושלם! 🏆",
+            "ברבבה! 🎈",
+            "גאונית! 💝",
+            "נהדר! 🌈",
+            "מעולה! 🎯"
+        ];
+
+        const icons = ["🌟", "⭐", "💫", "✨", "🎉", "🎊", "🎈", "🏆", "👑", "💝"];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function filterQuestions(category) {
+            if (category === 'all') {
+                filteredQuestions = [...questions];
+            } else {
+                filteredQuestions = questions.filter(q => q.category === parseInt(category));
+            }
+            shuffle(filteredQuestions);
+            currentQuestionIndex = 0;
+            answeredQuestions = [];
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('correct').textContent = correctAnswers;
+            document.getElementById('total').textContent = totalAnswered;
+
+            const progress = (answeredQuestions.length / filteredQuestions.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            document.getElementById('progress').textContent = Math.round(progress) + '%';
+
+            if (answeredQuestions.length % 5 === 0 && answeredQuestions.length > 0) {
+                showEncouragement();
+            }
+        }
+
+        function showEncouragement() {
+            const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+            const elem = document.getElementById('encouragement');
+            elem.textContent = encouragement;
+            setTimeout(() => {
+                elem.textContent = '';
+            }, 3000);
+        }
+
+        function createCelebration(emoji) {
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration';
+            celebration.textContent = emoji;
+            document.body.appendChild(celebration);
+            setTimeout(() => celebration.remove(), 1000);
+        }
+
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        function normalizeAnswer(answer) {
+            return answer
+                .trim()
+                .replace(/\s+/g, ' ')
+                .replace(/[״"׳']/g, '')
+                .toLowerCase();
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answerInput').value;
+            const normalizedUserAnswer = normalizeAnswer(userAnswer);
+            const question = filteredQuestions[currentQuestionIndex];
+
+            let isCorrect = false;
+            for (let correctAnswer of question.answer) {
+                if (normalizeAnswer(correctAnswer).includes(normalizedUserAnswer) ||
+                    normalizedUserAnswer.includes(normalizeAnswer(correctAnswer))) {
+                    isCorrect = true;
+                    break;
+                }
+            }
+
+            totalAnswered++;
+            answeredQuestions.push(currentQuestionIndex);
+
+            const feedbackDiv = document.getElementById('feedback');
+
+            if (isCorrect) {
+                score += 10;
+                correctAnswers++;
+                const message = positiveMessages[Math.floor(Math.random() * positiveMessages.length)];
+                const icon = icons[Math.floor(Math.random() * icons.length)];
+                feedbackDiv.className = 'feedback correct';
+                feedbackDiv.innerHTML = `${icon} ${message} ${icon}<br>התשובה שלך נכונה!`;
+                createCelebration(icon);
+                if (correctAnswers % 5 === 0) {
+                    createConfetti();
+                }
+            } else {
+                feedbackDiv.className = 'feedback incorrect';
+                feedbackDiv.innerHTML = `
+                    לא נורא! נסי שוב את השאלה הזאת בפעם הבאה 💪<br>
+                    <div class="correct-answer">התשובה הנכונה היא: <strong>${question.answer[0]}</strong></div>
+                `;
+            }
+
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('answerInput').disabled = true;
+
+            updateStats();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+
+            if (answeredQuestions.length >= filteredQuestions.length) {
+                showCompletion();
+                return;
+            }
+
+            while (answeredQuestions.includes(currentQuestionIndex) && currentQuestionIndex < filteredQuestions.length) {
+                currentQuestionIndex++;
+            }
+
+            if (currentQuestionIndex >= filteredQuestions.length) {
+                showCompletion();
+                return;
+            }
+
+            displayQuestion();
+        }
+
+        function skipQuestion() {
+            nextQuestion();
+        }
+
+        function displayQuestion() {
+            const question = filteredQuestions[currentQuestionIndex];
+            const gameContainer = document.getElementById('gameContainer');
+
+            gameContainer.innerHTML = `
+                <div class="question-card">
+                    <div class="question-text">${question.question}</div>
+                    <input type="text" id="answerInput" class="answer-input" placeholder="הקלידי את התשובה כאן...">
+                    <div class="btn-container">
+                        <button class="btn check-btn" id="checkBtn" onclick="checkAnswer()">בדקי תשובה ✓</button>
+                        <button class="btn next-btn" id="nextBtn" onclick="nextQuestion()" style="display:none;">שאלה הבאה ←</button>
+                        <button class="btn skip-btn" onclick="skipQuestion()">דלגי →</button>
+                    </div>
+                    <div id="feedback"></div>
+                </div>
+            `;
+
+            document.getElementById('answerInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    const checkBtn = document.getElementById('checkBtn');
+                    const nextBtn = document.getElementById('nextBtn');
+                    if (checkBtn.style.display !== 'none') {
+                        checkAnswer();
+                    } else if (nextBtn.style.display !== 'none') {
+                        nextQuestion();
+                    }
+                }
+            });
+
+            document.getElementById('answerInput').focus();
+        }
+
+        function showCompletion() {
+            const percentage = Math.round((correctAnswers / totalAnswered) * 100);
+            let message = '';
+            let emoji = '';
+
+            if (percentage >= 90) {
+                message = 'מדהים! את מצטיינת! 🌟';
+                emoji = '🏆';
+                createConfetti();
+            } else if (percentage >= 75) {
+                message = 'כל הכבוד! עבודה מעולה! 🎉';
+                emoji = '⭐';
+            } else if (percentage >= 60) {
+                message = 'יפה מאוד! המשיכי לתרגל! 💪';
+                emoji = '👍';
+            } else {
+                message = 'התחלה טובה! עוד קצת תרגול ותהיי מושלמת! 🌈';
+                emoji = '💫';
+            }
+
+            const gameContainer = document.getElementById('gameContainer');
+            gameContainer.innerHTML = `
+                <div class="completion-card">
+                    <h2>${emoji} סיימת! ${emoji}</h2>
+                    <p>${message}</p>
+                    <p>ענית נכון על ${correctAnswers} שאלות מתוך ${totalAnswered}</p>
+                    <p>אחוז הצלחה: ${percentage}%</p>
+                    <p>סה"כ נקודות: ${score}</p>
+                    <button class="restart-btn" onclick="restartGame()">שחקי שוב! 🔄</button>
+                </div>
+            `;
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            totalAnswered = 0;
+            answeredQuestions = [];
+            filterQuestions(currentCategory);
+            updateStats();
+            displayQuestion();
+        }
+
+        // Category selector
+        document.getElementById('categorySelector').addEventListener('click', function(e) {
+            if (e.target.classList.contains('category-btn')) {
+                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentCategory = e.target.dataset.category;
+                restartGame();
+            }
+        });
+
+        // Initialize game
+        filterQuestions('all');
+        updateStats();
+        displayQuestion();
+    </script>
+</body>
+</html>
